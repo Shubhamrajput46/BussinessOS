@@ -1,0 +1,51 @@
+{% load ui %}
+{% with url=request.resolver_match.url_name|default:"" %}
+<aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-brand">
+        <div class="brand-mark">B</div>
+        <div class="brand-copy"><strong>BusinessOS</strong><span>Business Platform</span></div>
+        <button class="sidebar-close" id="closeSidebar" type="button" aria-label="Close navigation">{% include "partials/icon.html" with name="x" %}</button>
+    </div>
+
+    <div class="workspace">
+        <div class="workspace-avatar">{{ request.user.organisation.name|initial }}</div>
+        <div class="workspace-info"><span>Workspace</span><strong>{{ request.user.organisation.name|default:"No organisation" }}</strong></div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-label">OVERVIEW</div>
+        <a href="{% url 'dashboard' %}" class="nav-link {% if url == 'dashboard' %}active{% endif %}">{% include "partials/icon.html" with name="home" %}<span>Dashboard</span></a>
+        <a href="{% url 'analytics_dashboard' %}" class="nav-link {% if url == 'analytics_dashboard' %}active{% endif %}">{% include "partials/icon.html" with name="chart" %}<span>Analytics</span></a>
+
+        <div class="nav-label">OPERATIONS</div>
+        {% if nav.orders %}<a href="{% url 'order_list' %}" class="nav-link {% if url|slice:':6' == 'order_' %}active{% endif %}">{% include "partials/icon.html" with name="cart" %}<span>Orders</span></a>{% endif %}
+        <a href="{% url 'product_list' %}" class="nav-link {% if url|slice:':8' == 'product_' %}active{% endif %}">{% include "partials/icon.html" with name="box" %}<span>Products</span></a>
+        {% if nav.inventory %}<a href="{% url 'inventory_list' %}" class="nav-link {% if url|slice:':10' == 'inventory_' %}active{% endif %}">{% include "partials/icon.html" with name="layers" %}<span>Inventory</span>{% if low_stock_count %}<span class="nav-count is-alert">{{ low_stock_count }}</span>{% endif %}</a>{% endif %}
+        <a href="{% url 'customer_list' %}" class="nav-link {% if url|slice:':9' == 'customer_' %}active{% endif %}">{% include "partials/icon.html" with name="users" %}<span>Customers</span></a>
+
+        {% if nav.finance %}
+        <div class="nav-label">FINANCE</div>
+        <a href="{% url 'expense_list' %}" class="nav-link {% if url|slice:':8' == 'expense_' %}active{% endif %}">{% include "partials/icon.html" with name="down" %}<span>Expenses</span></a>
+        <a href="{% url 'payment_list' %}" class="nav-link {% if url|slice:':8' == 'payment_' %}active{% endif %}">{% include "partials/icon.html" with name="card" %}<span>Payments</span></a>
+        <a href="{% url 'invoice_list' %}" class="nav-link {% if url|slice:':8' == 'invoice_' %}active{% endif %}">{% include "partials/icon.html" with name="file" %}<span>Invoices</span></a>
+        {% endif %}
+
+        <div class="nav-label">INTELLIGENCE</div>
+        <a href="{% url 'forecast_list' %}" class="nav-link {% if url|slice:':8' == 'forecast' %}active{% endif %}">{% include "partials/icon.html" with name="zap" %}<span>AI Forecast</span></a>
+
+        <div class="nav-label">WORKSPACE</div>
+        <a href="{% url 'notification_list' %}" class="nav-link {% if url|slice:':12' == 'notification' %}active{% endif %}">{% include "partials/icon.html" with name="bell" %}<span>Notifications</span>{% if unread_notifications %}<span class="nav-count is-alert">{{ unread_notifications }}</span>{% endif %}</a>
+        {% if nav.team %}<a href="{% url 'user_list' %}" class="nav-link {% if url|slice:':5' == 'user_' %}active{% endif %}">{% include "partials/icon.html" with name="users" %}<span>Team</span></a>{% endif %}
+        {% if nav.settings %}<a href="{% url 'organisation_settings' %}" class="nav-link {% if url == 'organisation_settings' %}active{% endif %}">{% include "partials/icon.html" with name="sliders" %}<span>Settings</span></a>{% endif %}
+    </nav>
+
+    <div class="sidebar-bottom">
+        <a href="{% url 'profile' %}" class="user-chip">
+            <span class="avatar">{{ request.user.username|initial }}</span>
+            <div><strong>{{ request.user.username }}</strong><span>{{ request.user.get_role_display }}</span></div>
+        </a>
+        <a href="{% url 'logout' %}" class="logout-link">{% include "partials/icon.html" with name="logout" %}<span>Sign out</span></a>
+    </div>
+</aside>
+{% endwith %}
+<div class="sidebar-overlay" id="sidebarOverlay"></div>

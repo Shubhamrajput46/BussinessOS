@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Stock movement{% endblock %}
+{% block crumb %}Inventory{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'inventory_list' %}">{% include "partials/icon.html" with name="back" %} Back to inventory</a>{% endblock %}
+{% block page_title %}New stock movement{% endblock %}
+{% block page_subtitle %}Stock in adds, stock out subtracts, adjustment sets the exact quantity.{% endblock %}
+{% block content %}
+<div class="card card-pad" style="max-width:720px">
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+        <div class="form-grid">
+            <div class="field full"><label for="product">Product <span class="req">*</span></label>
+                <select id="product" name="product" required><option value="">Select a product</option>
+                {% for p in products %}<option value="{{ p.id }}" {% if posted.product == p.id|stringformat:"s" or selected_product == p.id|stringformat:"s" %}selected{% endif %}>{{ p.name }} ({{ p.sku }}) · stock {{ p.stock_quantity }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="transaction_type">Type</label>
+                <select id="transaction_type" name="transaction_type">{% for v, l in types %}<option value="{{ v }}" {% if posted.transaction_type == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="quantity">Quantity <span class="req">*</span></label><input id="quantity" name="quantity" type="number" min="1" value="{{ posted.quantity }}" required></div>
+            <div class="field full"><label for="note">Note</label><textarea id="note" name="note">{{ posted.note }}</textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">Save movement</button><a class="btn btn-secondary" href="{% url 'inventory_list' %}">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

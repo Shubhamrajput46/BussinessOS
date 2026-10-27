@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Delete payment{% endblock %}{% block crumb %}Payments{% endblock %}{% block header %}{% endblock %}
+{% block content %}
+<div class="card confirm-card"><div class="confirm-icon">{% include "partials/icon.html" with name="trash" %}</div>
+    <h1>Delete this payment?</h1><p class="muted">{{ payment.amount|inr }} for order <strong>{{ payment.order.order_number }}</strong></p>
+    <form method="post" class="form-actions">{% csrf_token %}<button class="btn btn-danger" type="submit">Yes, delete</button><a class="btn btn-secondary" href="{% url 'payment_list' %}">Cancel</a></form></div>
+{% endblock %}

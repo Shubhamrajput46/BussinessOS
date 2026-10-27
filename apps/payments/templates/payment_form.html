@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{% if payment %}Edit payment{% else %}Record payment{% endif %}{% endblock %}
+{% block crumb %}Payments{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'payment_list' %}">{% include "partials/icon.html" with name="back" %} Back to payments</a>{% endblock %}
+{% block page_title %}{% if payment %}Edit payment{% else %}Record payment{% endif %}{% endblock %}
+{% block content %}
+<div class="card card-pad" style="max-width:760px">
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+        <div class="form-grid">
+            <div class="field full"><label for="order">Order <span class="req">*</span></label>
+                <select id="order" name="order" required><option value="">Select an order</option>
+                {% for o in orders %}<option value="{{ o.id }}" {% if posted.order == o.id|stringformat:"s" or selected_order == o.id|stringformat:"s" or payment.order_id == o.id and not posted %}selected{% endif %}>{{ o.order_number }} · {{ o.customer.name }} · {{ o.total_amount|inr }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="amount">Amount (₹) <span class="req">*</span></label><input id="amount" name="amount" type="number" step="0.01" min="0.01" inputmode="decimal" value="{% fv posted payment 'amount' %}" required></div>
+            <div class="field"><label for="method">Method</label><select id="method" name="method">{% for v, l in methods %}<option value="{{ v }}" {% fsel posted payment 'method' v 'CASH' %}>{{ l }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="status">Status</label><select id="status" name="status">{% for v, l in statuses %}<option value="{{ v }}" {% fsel posted payment 'status' v 'PAID' %}>{{ l }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="transaction_reference">Reference</label><input id="transaction_reference" name="transaction_reference" value="{% fv posted payment 'transaction_reference' %}" placeholder="UPI / cheque / transaction id"></div>
+            <div class="field full"><label for="notes">Notes</label><textarea id="notes" name="notes">{% fv posted payment 'notes' %}</textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">{% if payment %}Save changes{% else %}Record payment{% endif %}</button><a class="btn btn-secondary" href="{% url 'payment_list' %}">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

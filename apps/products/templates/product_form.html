@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{% if product %}Edit product{% else %}Add product{% endif %}{% endblock %}
+{% block crumb %}Products{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'product_list' %}">{% include "partials/icon.html" with name="back" %} Back to products</a>{% endblock %}
+{% block page_title %}{% if product %}Edit {{ product.name }}{% else %}Add product{% endif %}{% endblock %}
+{% block content %}
+<div class="card card-pad" style="max-width:860px">
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+        <div class="form-grid">
+            <div class="field"><label for="name">Product name <span class="req">*</span></label><input id="name" name="name" value="{% fv posted product 'name' %}" required></div>
+            <div class="field"><label for="sku">SKU <span class="req">*</span></label><input id="sku" name="sku" value="{% fv posted product 'sku' %}" required><span class="hint">Must be unique in your workspace.</span></div>
+            <div class="field"><label for="cost_price">Cost price (₹) <span class="req">*</span></label><input id="cost_price" name="cost_price" type="number" step="0.01" min="0" inputmode="decimal" value="{% fv posted product 'cost_price' %}" required></div>
+            <div class="field"><label for="selling_price">Selling price (₹) <span class="req">*</span></label><input id="selling_price" name="selling_price" type="number" step="0.01" min="0" inputmode="decimal" value="{% fv posted product 'selling_price' %}" required></div>
+            <div class="field"><label for="stock_quantity">Stock quantity</label><input id="stock_quantity" name="stock_quantity" type="number" min="0" value="{% fv posted product 'stock_quantity' 0 %}"></div>
+            <div class="field"><label for="low_stock_threshold">Low stock alert at</label><input id="low_stock_threshold" name="low_stock_threshold" type="number" min="0" value="{% fv posted product 'low_stock_threshold' 5 %}"></div>
+            <div class="field full"><label for="description">Description</label><textarea id="description" name="description">{% fv posted product 'description' %}</textarea></div>
+            <div class="field full"><label class="check"><input type="checkbox" name="is_active" {% fchk posted product 'is_active' True %}> Active (available for orders)</label></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">{% if product %}Save changes{% else %}Create product{% endif %}</button><a class="btn btn-secondary" href="{% url 'product_list' %}">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

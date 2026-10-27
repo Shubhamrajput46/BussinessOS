@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Expenses{% endblock %}
+{% block crumb %}Expenses{% endblock %}
+{% block page_title %}Expenses{% endblock %}
+{% block page_subtitle %}Running costs: rent, salaries, utilities and more.{% endblock %}
+{% block page_actions %}{% if request.user.role in 'OWNER ADMIN ACCOUNTANT' %}<a href="{% url 'expense_create' %}" class="btn btn-primary">{% include "partials/icon.html" with name="plus" %} Add expense</a>{% endif %}{% endblock %}
+{% block content %}
+<div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))"><div class="kpi"><div class="kpi-top">Total (active, filtered)<span class="kpi-icon red">{% include "partials/icon.html" with name="down" %}</span></div><span class="kpi-value">{{ filtered_total|inr }}</span></div></div>
+<div class="card">
+    <div class="toolbar"><form method="get">
+        <div class="search">{% include "partials/icon.html" with name="search" %}<input type="search" name="q" value="{{ q }}" placeholder="Search expenses"></div>
+        <select name="category" data-autosubmit aria-label="Category"><option value="">All categories</option>{% for v, l in categories %}<option value="{{ v }}" {% if category == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+        <button class="btn btn-secondary" type="submit">Search</button>
+    </form></div>
+    {% if expenses %}
+    <div class="table-wrap"><table class="table stack">
+        <thead><tr><th>Expense</th><th>Category</th><th>Date</th><th class="num">Amount</th><th>Status</th><th></th></tr></thead>
+        <tbody>{% for e in expenses %}<tr>
+            <td data-label="Expense"><span class="cell-title">{{ e.title }}</span>{% if e.description %}<span class="cell-sub">{{ e.description|truncatechars:60 }}</span>{% endif %}</td>
+            <td data-label="Category"><span class="badge">{{ e.get_category_display }}</span></td>
+            <td data-label="Date">{{ e.expense_date|date:"d M Y" }}</td>
+            <td data-label="Amount" class="num">{{ e.amount|inr }}</td>
+            <td data-label="Status"><span class="{% if e.is_active %}badge badge-success{% else %}badge badge-danger{% endif %}">{% if e.is_active %}Counted{% else %}Ignored{% endif %}</span></td>
+            <td class="actions"><div class="row-actions">
+                {% if request.user.role in 'OWNER ADMIN ACCOUNTANT' %}<a class="btn btn-secondary btn-sm" href="{% url 'expense_edit' e.pk %}">Edit</a>{% endif %}
+                {% if request.user.role in 'OWNER ADMIN' %}<a class="btn btn-ghost btn-sm text-danger" href="{% url 'expense_delete' e.pk %}">Delete</a>{% endif %}</div></td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{% include "partials/empty.html" with icon="down" title="No expenses found" text="Record an expense to track your costs." %}{% endif %}
+    {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

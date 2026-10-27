@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{% if customer %}Edit customer{% else %}Add customer{% endif %}{% endblock %}
+{% block crumb %}Customers{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'customer_list' %}">{% include "partials/icon.html" with name="back" %} Back to customers</a>{% endblock %}
+{% block page_title %}{% if customer %}Edit {{ customer.name }}{% else %}Add customer{% endif %}{% endblock %}
+{% block content %}
+<div class="card card-pad" style="max-width:760px">
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+        <div class="form-grid">
+            <div class="field"><label for="name">Name <span class="req">*</span></label><input id="name" name="name" value="{% fv posted customer 'name' %}" required></div>
+            <div class="field"><label for="phone">Phone <span class="req">*</span></label><input id="phone" name="phone" type="tel" value="{% fv posted customer 'phone' %}" required></div>
+            <div class="field full"><label for="email">Email</label><input id="email" name="email" type="email" value="{% fv posted customer 'email' %}"></div>
+            <div class="field full"><label for="address">Address</label><textarea id="address" name="address">{% fv posted customer 'address' %}</textarea></div>
+            <div class="field full"><label class="check"><input type="checkbox" name="is_active" {% fchk posted customer 'is_active' True %}> Active customer</label></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">{% if customer %}Save changes{% else %}Create customer{% endif %}</button><a class="btn btn-secondary" href="{% url 'customer_list' %}">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

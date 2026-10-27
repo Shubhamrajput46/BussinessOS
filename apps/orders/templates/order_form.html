@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static ui %}
+{% block title %}{% if order %}Edit {{ order.order_number }}{% else %}New order{% endif %}{% endblock %}
+{% block crumb %}Orders{% endblock %}
+{% block back %}<a class="back-link" href="{% if order %}{% url 'order_detail' order.pk %}{% else %}{% url 'order_list' %}{% endif %}">{% include "partials/icon.html" with name="back" %} Back</a>{% endblock %}
+{% block page_title %}{% if order %}Edit {{ order.order_number }}{% else %}New order{% endif %}{% endblock %}
+{% block page_subtitle %}Choose a customer, tick products and set quantities. Stock is reserved automatically.{% endblock %}
+{% block content %}
+<form method="post" id="orderForm" novalidate>{% csrf_token %}
+    {% include "partials/form_error.html" %}
+    <div class="grid grid-main">
+        <div class="card">
+            <div class="card-head"><h2>Products</h2><div class="search" style="min-width:200px"><input type="search" id="pickSearch" placeholder="Filter products"></div></div>
+            <div class="card-body product-picker">
+                {% for r in rows %}
+                <div class="pick-row" data-price="{{ r.product.selling_price }}" data-name="{{ r.product.name|lower }}">
+                    <input type="checkbox" name="products" value="{{ r.product.id }}" id="p{{ r.product.id }}" {% if r.selected %}checked{% endif %} {% if r.product.stock_quantity == 0 and not r.selected %}disabled{% endif %}>
+                    <label for="p{{ r.product.id }}"><span class="cell-title">{{ r.product.name }}</span><span class="cell-sub">{{ r.product.sku }} · {{ r.product.stock_quantity }} in stock</span></label>
+                    <input class="qty" type="number" min="1" name="quantity_{{ r.product.id }}" value="{{ r.quantity }}" aria-label="Quantity for {{ r.product.name }}" disabled>
+                    <span class="price">{{ r.product.selling_price|inr }}</span>
+                </div>
+                {% empty %}{% include "partials/empty.html" with icon="box" title="No active products" text="Add products before creating orders." url="/products/add/" label="Add product" %}{% endfor %}
+            </div>
+        </div>
+        <div>
+            <div class="card card-pad">
+                <div class="field"><label for="customer">Customer <span class="req">*</span></label>
+                    <select id="customer" name="customer" required><option value="">Select a customer</option>
+                    {% for c in customers %}<option value="{{ c.id }}" {% if selected_customer|stringformat:"s" == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+                <div class="form-grid mt-2">
+                    <div class="field"><label for="discount">Discount (₹)</label><input id="discount" name="discount" type="number" step="0.01" min="0" value="{{ discount }}"></div>
+                    <div class="field"><label for="tax">Tax (₹)</label><input id="tax" name="tax" type="number" step="0.01" min="0" value="{{ tax }}"></div>
+                </div>
+                <hr>
+                <div class="totals"><div><span class="muted">Subtotal</span><span id="sumSubtotal">₹0.00</span></div><div class="grand"><span>Total</span><span id="sumTotal">₹0.00</span></div></div>
+                <div class="form-actions"><button class="btn btn-primary btn-block" type="submit">{% if order %}Save changes{% else %}Create order{% endif %}</button></div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/order_form.js' %}"></script>{% endblock %}

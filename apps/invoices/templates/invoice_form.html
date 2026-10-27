@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{% if invoice %}Edit invoice{% else %}New invoice{% endif %}{% endblock %}
+{% block crumb %}Invoices{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'invoice_list' %}">{% include "partials/icon.html" with name="back" %} Back to invoices</a>{% endblock %}
+{% block page_title %}{% if invoice %}Edit {{ invoice.invoice_number }}{% else %}New invoice{% endif %}{% endblock %}
+{% block content %}
+<div class="card card-pad" style="max-width:720px">
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+        <div class="form-grid">
+        {% if invoice %}
+            <div class="field"><label for="status">Status</label><select id="status" name="status">{% for v, l in statuses %}<option value="{{ v }}" {% fsel posted invoice 'status' v %}>{{ l }}</option>{% endfor %}</select></div>
+        {% else %}
+            <div class="field full"><label for="order">Order <span class="req">*</span></label>
+                <select id="order" name="order" required><option value="">Select an order</option>
+                {% for o in orders %}<option value="{{ o.id }}" {% if posted.order == o.id|stringformat:"s" or selected_order == o.id|stringformat:"s" %}selected{% endif %}>{{ o.order_number }} · {{ o.customer.name }} · {{ o.total_amount|inr }}</option>{% endfor %}</select>
+                <span class="hint">Only orders without an invoice are listed. Totals are copied from the order.</span></div>
+        {% endif %}
+            <div class="field"><label for="due_date">Due date</label><input id="due_date" name="due_date" type="date" value="{% fv posted invoice 'due_date' %}"></div>
+            <div class="field full"><label for="notes">Notes</label><textarea id="notes" name="notes">{% fv posted invoice 'notes' %}</textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">{% if invoice %}Save changes{% else %}Create invoice{% endif %}</button><a class="btn btn-secondary" href="{% url 'invoice_list' %}">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

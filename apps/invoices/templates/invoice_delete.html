@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Delete invoice{% endblock %}{% block crumb %}Invoices{% endblock %}{% block header %}{% endblock %}
+{% block content %}
+<div class="card confirm-card"><div class="confirm-icon">{% include "partials/icon.html" with name="trash" %}</div>
+    <h1>Delete {{ invoice.invoice_number }}?</h1><p class="muted">The order and its payments stay untouched.</p>
+    <form method="post" class="form-actions">{% csrf_token %}<button class="btn btn-danger" type="submit">Yes, delete</button><a class="btn btn-secondary" href="{% url 'invoice_detail' invoice.pk %}">Cancel</a></form></div>
+{% endblock %}

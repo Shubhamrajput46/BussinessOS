@@ -1,0 +1,47 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#16594a">
+    <title>{% block title %}BusinessOS{% endblock %}</title>
+    <meta name="description" content="BusinessOS is an all-in-one business platform: orders, inventory, customers, invoices, payments, expenses, analytics and AI sales forecasting.">
+    <meta property="og:title" content="BusinessOS - Run your whole business from one place">
+    <meta property="og:description" content="Orders, inventory, invoices, payments, analytics and AI forecasts in one secure workspace.">
+    <link rel="stylesheet" href="{% static 'css/master.css' %}">
+</head>
+<body>
+{% include "partials/icons.html" %}
+{% include "partials/messages.html" %}
+<header class="pub-nav">
+    <div class="pub-nav-inner">
+        <a href="{% url 'home' %}" class="auth-brand"><span class="brand-mark">B</span> BusinessOS</a>
+        <button class="menu-toggle pub-toggle" id="pubToggle" type="button" aria-label="Toggle menu" aria-controls="pubLinks" aria-expanded="false">{% include "partials/icon.html" with name="menu" %}</button>
+        <nav class="pub-links" id="pubLinks" aria-label="Primary">
+            <a href="{% url 'home' %}#features">Features</a>
+            <a href="{% url 'home' %}#modules">Modules</a>
+            <a href="{% url 'home' %}#how">How it works</a>
+            <a href="{% url 'home' %}#roles">Teams</a>
+            <a href="{% url 'home' %}#developers">API</a>
+            <a href="{% url 'home' %}#faq">FAQ</a>
+            {% if request.user.is_authenticated %}<a href="{% url 'dashboard' %}" class="btn btn-primary btn-sm">Open dashboard</a>
+            {% else %}<a href="{% url 'login' %}" class="pub-signin">Sign in</a><a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Get started free</a>{% endif %}
+        </nav>
+    </div>
+</header>
+{% block content %}{% endblock %}
+<footer class="pub-footer">
+    <div class="pub-footer-grid">
+        <div>
+            <a href="{% url 'home' %}" class="auth-brand"><span class="brand-mark">B</span> BusinessOS</a>
+            <p class="muted mt-1">The all-in-one platform to sell, stock, bill and grow.</p>
+        </div>
+        <div><h4>Product</h4><a href="{% url 'home' %}#features">Features</a><a href="{% url 'home' %}#modules">Modules</a><a href="{% url 'home' %}#how">How it works</a></div>
+        <div><h4>Platform</h4><a href="{% url 'home' %}#roles">Roles &amp; teams</a><a href="{% url 'home' %}#developers">REST API</a><a href="/api/v1/docs/">API documentation</a></div>
+        <div><h4>Account</h4>{% if request.user.is_authenticated %}<a href="{% url 'dashboard' %}">Dashboard</a><a href="{% url 'logout' %}">Sign out</a>{% else %}<a href="{% url 'login' %}">Sign in</a><a href="{% url 'signup' %}">Create workspace</a><a href="{% url 'password_reset' %}">Forgot password</a>{% endif %}</div>
+    </div>
+    <div class="pub-footer-bottom">&copy; BusinessOS. All rights reserved.</div>
+</footer>
+<script src="{% static 'js/master.js' %}"></script>
+</body>
+</html>

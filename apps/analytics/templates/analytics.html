@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static ui %}
+{% block title %}Analytics{% endblock %}
+{% block crumb %}Analytics{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+{% block page_subtitle %}Sales, expenses and profit over time.{% endblock %}
+{% block content %}
+<div class="card mb-2"><div class="toolbar"><form method="get">
+    <div class="field" style="flex-direction:row;align-items:center;gap:8px"><label for="start_date">From</label><input id="start_date" type="date" name="start_date" value="{{ start_date }}" style="width:auto"></div>
+    <div class="field" style="flex-direction:row;align-items:center;gap:8px"><label for="end_date">To</label><input id="end_date" type="date" name="end_date" value="{{ end_date }}" style="width:auto"></div>
+    <button class="btn btn-primary" type="submit">Apply</button><a class="btn btn-secondary" href="{% url 'analytics_dashboard' %}">Reset</a>
+</form></div></div>
+
+<section class="kpis">
+    <div class="kpi"><div class="kpi-top">Revenue<span class="kpi-icon">₹</span></div><span class="kpi-value">{{ total_sales|inr }}</span><div class="kpi-note">{{ total_orders }} orders</div></div>
+    <div class="kpi"><div class="kpi-top">Expenses<span class="kpi-icon red">{% include "partials/icon.html" with name="down" %}</span></div><span class="kpi-value">{{ total_expenses|inr }}</span></div>
+    <div class="kpi"><div class="kpi-top">Profit<span class="kpi-icon blue">{% include "partials/icon.html" with name="chart" %}</span></div><span class="kpi-value {% if profit < 0 %}text-danger{% endif %}">{{ profit|inr }}</span></div>
+    <div class="kpi"><div class="kpi-top">Avg. order value<span class="kpi-icon violet">{% include "partials/icon.html" with name="cart" %}</span></div><span class="kpi-value">{{ average_order_value|inr }}</span></div>
+</section>
+<section class="kpis">
+    <div class="kpi"><div class="kpi-top">Payments received<span class="kpi-icon">{% include "partials/icon.html" with name="card" %}</span></div><span class="kpi-value">{{ total_payments|inr }}</span></div>
+    <div class="kpi"><div class="kpi-top">Customers<span class="kpi-icon violet">{% include "partials/icon.html" with name="users" %}</span></div><span class="kpi-value">{{ total_customers }}</span></div>
+    <div class="kpi"><div class="kpi-top">Products<span class="kpi-icon orange">{% include "partials/icon.html" with name="box" %}</span></div><span class="kpi-value">{{ total_products }}</span></div>
+    <div class="kpi"><div class="kpi-top">Low stock<span class="kpi-icon red">{% include "partials/icon.html" with name="alert" %}</span></div><span class="kpi-value">{{ low_stock_products }}</span></div>
+</section>
+
+<div class="card">
+    <div class="card-head"><h2>Monthly performance</h2></div>
+    <div class="card-body">
+        {% if monthly_analytics %}
+        <div class="chart-box" id="monthlyChart"></div>
+        <div class="chart-legend"><span><i style="background:#16594a"></i>Sales</span><span><i style="background:#b45309"></i>Expenses</span><span><i style="background:#1d4ed8"></i>Profit</span></div>
+        {% else %}{% include "partials/empty.html" with icon="chart" title="No data for this period" text="Try a wider date range." %}{% endif %}
+    </div>
+    {% if monthly_analytics %}
+    <div class="table-wrap"><table class="table stack">
+        <thead><tr><th>Month</th><th class="num">Sales</th><th class="num">Expenses</th><th class="num">Profit</th></tr></thead>
+        <tbody>{% for m in monthly_analytics %}<tr><td data-label="Month">{{ m.month|date:"F Y" }}</td><td data-label="Sales" class="num">{{ m.sales|inr }}</td><td data-label="Expenses" class="num">{{ m.expenses|inr }}</td><td data-label="Profit" class="num {% if m.profit < 0 %}text-danger{% else %}text-success{% endif %}">{{ m.profit|inr }}</td></tr>{% endfor %}</tbody>
+    </table></div>{% endif %}
+</div>
+{% endblock %}
+{% block extra_js %}
+{% if monthly_analytics %}
+{{ chart_json|json_script:"chart-data" }}
+<script src="{% static 'js/charts.js' %}"></script>
+<script>
+(function () {
+    var d = JSON.parse(document.getElementById("chart-data").textContent);
+    BosCharts.render("monthlyChart", { type: "bar", labels: d.labels, series: [
+        { name: "Sales", values: d.sales, color: "#16594a" }, { name: "Expenses", values: d.expenses, color: "#b45309" }, { name: "Profit", values: d.profit, color: "#1d4ed8" }] });
+})();
+</script>
+{% endif %}
+{% endblock %}

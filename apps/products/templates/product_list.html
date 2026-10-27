@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Products{% endblock %}
+{% block crumb %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+{% block page_subtitle %}Your catalogue, prices and stock levels.{% endblock %}
+{% block page_actions %}{% if request.user.role != 'STAFF' and request.user.role != 'ACCOUNTANT' %}<a href="{% url 'product_create' %}" class="btn btn-primary">{% include "partials/icon.html" with name="plus" %} Add product</a>{% endif %}{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="toolbar"><form method="get">
+        <div class="search">{% include "partials/icon.html" with name="search" %}<input type="search" name="q" value="{{ q }}" placeholder="Search name or SKU"></div>
+        <select name="status" data-autosubmit aria-label="Filter"><option value="">All products</option>
+            <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+            <option value="low" {% if status == 'low' %}selected{% endif %}>Low stock</option></select>
+        <button class="btn btn-secondary" type="submit">Search</button>
+    </form></div>
+    {% if products %}
+    <div class="table-wrap"><table class="table stack">
+        <thead><tr><th>Product</th><th>SKU</th><th class="num">Cost</th><th class="num">Price</th><th class="num">Stock</th><th>Status</th><th></th></tr></thead>
+        <tbody>{% for p in products %}
+        <tr>
+            <td data-label="Product"><span class="cell-title">{{ p.name }}</span>{% if p.description %}<span class="cell-sub">{{ p.description|truncatechars:60 }}</span>{% endif %}</td>
+            <td data-label="SKU" class="mono">{{ p.sku }}</td>
+            <td data-label="Cost" class="num">{{ p.cost_price|inr }}</td>
+            <td data-label="Price" class="num">{{ p.selling_price|inr }}</td>
+            <td data-label="Stock" class="num">{{ p.stock_quantity }}{% if p.stock_quantity <= p.low_stock_threshold %} <span class="badge badge-danger">Low</span>{% endif %}</td>
+            <td data-label="Status"><span class="{% if p.is_active %}badge badge-success{% else %}badge badge-danger{% endif %}">{% if p.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+            <td class="actions"><div class="row-actions">
+                {% if request.user.role in 'OWNER ADMIN MANAGER' %}<a href="{% url 'product_edit' p.pk %}" class="btn btn-secondary btn-sm">Edit</a>{% endif %}
+                {% if request.user.role in 'OWNER ADMIN' %}<a href="{% url 'product_delete' p.pk %}" class="btn btn-ghost btn-sm text-danger">Delete</a>{% endif %}
+            </div></td>
+        </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{% include "partials/empty.html" with icon="box" title="No products found" text="Add your first product to start selling." url="/products/add/" label="Add product" %}{% endif %}
+    {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

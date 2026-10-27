@@ -1,0 +1,51 @@
+# Local / single-server deployment:  docker compose up --build
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-businessos}
+      MYSQL_USER: ${DB_USER:-businessos}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?set DB_ROOT_PASSWORD in .env}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build: .
+    image: businessos:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DEBUG: "False"
+      DB_HOST: db
+      DB_PORT: "3306"
+    ports:
+      - "${WEB_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Daily AI forecast refresh (same image, runs the management command at 02:00)
+  scheduler:
+    image: businessos:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DEBUG: "False"
+      DB_HOST: db
+      RUN_MIGRATIONS: "0"
+    entrypoint: ["sh", "-c"]
+    command: ["while true; do sleep $$(( ( $$(date -d 'tomorrow 02:00' +%s) - $$(date +%s) ) )); python manage.py generate_forecasts; done"]
+    depends_on:
+      - web
+
+volumes:
+  mysql_data:

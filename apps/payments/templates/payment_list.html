@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Payments{% endblock %}
+{% block crumb %}Payments{% endblock %}
+{% block page_title %}Payments{% endblock %}
+{% block page_subtitle %}Money received against orders.{% endblock %}
+{% block page_actions %}{% if request.user.role in 'OWNER ADMIN ACCOUNTANT' %}<a href="{% url 'payment_create' %}" class="btn btn-primary">{% include "partials/icon.html" with name="plus" %} Record payment</a>{% endif %}{% endblock %}
+{% block content %}
+<div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))"><div class="kpi"><div class="kpi-top">Paid (filtered)<span class="kpi-icon">{% include "partials/icon.html" with name="card" %}</span></div><span class="kpi-value">{{ paid_total|inr }}</span></div></div>
+<div class="card">
+    <div class="toolbar"><form method="get">
+        <div class="search">{% include "partials/icon.html" with name="search" %}<input type="search" name="q" value="{{ q }}" placeholder="Search order, customer or reference"></div>
+        <select name="status" data-autosubmit aria-label="Status"><option value="">All statuses</option>{% for v, l in statuses %}<option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+        <button class="btn btn-secondary" type="submit">Search</button>
+    </form></div>
+    {% if payments %}
+    <div class="table-wrap"><table class="table stack">
+        <thead><tr><th>Order</th><th>Customer</th><th>Method</th><th>Date</th><th>Status</th><th class="num">Amount</th><th></th></tr></thead>
+        <tbody>{% for p in payments %}<tr>
+            <td data-label="Order"><a class="cell-title" href="{% url 'order_detail' p.order.pk %}">{{ p.order.order_number }}</a>{% if p.transaction_reference %}<span class="cell-sub mono">{{ p.transaction_reference }}</span>{% endif %}</td>
+            <td data-label="Customer">{{ p.order.customer.name }}</td>
+            <td data-label="Method">{{ p.get_method_display }}</td>
+            <td data-label="Date">{{ p.payment_date|date:"d M Y" }}</td>
+            <td data-label="Status"><span class="{{ p.status|badge }}">{{ p.get_status_display }}</span></td>
+            <td data-label="Amount" class="num">{{ p.amount|inr }}</td>
+            <td class="actions"><div class="row-actions">
+                {% if request.user.role in 'OWNER ADMIN ACCOUNTANT' %}<a class="btn btn-secondary btn-sm" href="{% url 'payment_edit' p.pk %}">Edit</a>{% endif %}
+                {% if request.user.role in 'OWNER ADMIN' %}<a class="btn btn-ghost btn-sm text-danger" href="{% url 'payment_delete' p.pk %}">Delete</a>{% endif %}</div></td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{% include "partials/empty.html" with icon="card" title="No payments found" text="Record a payment against an order." %}{% endif %}
+    {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

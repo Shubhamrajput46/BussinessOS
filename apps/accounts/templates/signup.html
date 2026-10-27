@@ -1,0 +1,26 @@
+{% extends "base_auth.html" %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<div class="card card-pad">
+    <h1>Create your workspace</h1>
+    <p class="muted">Start free. You become the Owner and can invite your team later.</p>
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-grid" style="grid-template-columns:1fr">
+            <div class="field"><label for="organisation_name">Business name <span class="req">*</span></label>
+                <input id="organisation_name" name="organisation_name" value="{{ posted.organisation_name }}" required autofocus></div>
+            <div class="field"><label for="username">Username <span class="req">*</span></label>
+                <input id="username" name="username" autocomplete="username" value="{{ posted.username }}" required></div>
+            <div class="field"><label for="email">Email <span class="req">*</span></label>
+                <input id="email" name="email" type="email" autocomplete="email" value="{{ posted.email }}" required></div>
+            <div class="field"><label for="password">Password <span class="req">*</span></label>
+                <div class="input-group"><input id="password" name="password" type="password" autocomplete="new-password" required>
+                <button class="toggle-pass" type="button" aria-label="Show password">Show</button></div>
+                <span class="hint">At least 8 characters, not too common.</span></div>
+        </div>
+        <button class="btn btn-primary btn-block mt-2" type="submit">Create workspace</button>
+    </form>
+    <p class="muted text-center mt-2 mb-0">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+</div>
+{% endblock %}

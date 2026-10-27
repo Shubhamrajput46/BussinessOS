@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Inventory{% endblock %}
+{% block crumb %}Inventory{% endblock %}
+{% block page_title %}Inventory{% endblock %}
+{% block page_subtitle %}Every stock movement, newest first.{% endblock %}
+{% block page_actions %}<a href="{% url 'inventory_transaction_create' %}" class="btn btn-primary">{% include "partials/icon.html" with name="plus" %} Stock movement</a>{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="toolbar"><form method="get">
+        <div class="search">{% include "partials/icon.html" with name="search" %}<input type="search" name="q" value="{{ q }}" placeholder="Search product, SKU or note"></div>
+        <select name="type" data-autosubmit aria-label="Type"><option value="">All types</option>{% for v, l in types %}<option value="{{ v }}" {% if type == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+        <button class="btn btn-secondary" type="submit">Search</button>
+    </form></div>
+    {% if transactions %}
+    <div class="table-wrap"><table class="table stack">
+        <thead><tr><th>Date</th><th>Product</th><th>Type</th><th class="num">Quantity</th><th>Note</th></tr></thead>
+        <tbody>{% for t in transactions %}<tr>
+            <td data-label="Date">{{ t.created_at|date:"d M Y, H:i" }}</td>
+            <td data-label="Product"><span class="cell-title">{{ t.product.name }}</span><span class="cell-sub">{{ t.product.sku }}</span></td>
+            <td data-label="Type"><span class="{{ t.transaction_type|badge }}">{{ t.get_transaction_type_display }}</span></td>
+            <td data-label="Quantity" class="num">{{ t.quantity }}</td>
+            <td data-label="Note">{{ t.note|default:"—" }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{% include "partials/empty.html" with icon="layers" title="No stock movements" text="Record stock in, stock out or adjustments here." url="/inventory/transaction/add/" label="Add movement" %}{% endif %}
+    {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

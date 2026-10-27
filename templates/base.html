@@ -1,0 +1,46 @@
+{% load static ui %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#16594a">
+    <title>{% block title %}BusinessOS{% endblock %} · BusinessOS</title>
+    <link rel="stylesheet" href="{% static 'css/master.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% include "partials/icons.html" %}
+<div class="app">
+    {% include "partials/sidebar.html" %}
+
+    <div class="app-main">
+        <header class="topbar">
+            <button class="menu-toggle" id="openSidebar" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">{% include "partials/icon.html" with name="menu" %}</button>
+            <div class="topbar-title">{{ request.user.organisation.name|default:"BusinessOS" }} <span>/ {% block crumb %}{% endblock %}</span></div>
+            <div class="topbar-right">
+                <a href="{% url 'notification_list' %}" class="icon-btn" aria-label="Notifications">{% include "partials/icon.html" with name="bell" %}{% if unread_notifications %}<i class="dot">{{ unread_notifications }}</i>{% endif %}</a>
+                <a href="{% url 'profile' %}" class="profile-pill"><span class="avatar">{{ request.user.username|initial }}</span><div><b>{{ request.user.username }}</b><small>{{ request.user.get_role_display }}</small></div></a>
+            </div>
+        </header>
+
+        {% include "partials/messages.html" %}
+
+        <main class="page">
+            {% block header %}
+            <div class="page-header">
+                <div>
+                    {% block back %}{% endblock %}
+                    <h1>{% block page_title %}{% endblock %}</h1>
+                    {% block page_subtitle_wrap %}<p>{% block page_subtitle %}{% endblock %}</p>{% endblock %}
+                </div>
+                <div class="page-actions">{% block page_actions %}{% endblock %}</div>
+            </div>
+            {% endblock %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+<script src="{% static 'js/master.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

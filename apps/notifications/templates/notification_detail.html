@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}{{ notification.title }}{% endblock %}{% block crumb %}Notifications{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'notification_list' %}">{% include "partials/icon.html" with name="back" %} Back to notifications</a>{% endblock %}
+{% block page_title %}{{ notification.title }}{% endblock %}
+{% block page_subtitle %}{{ notification.created_at|date:"d M Y, H:i" }}{% endblock %}
+{% block content %}
+<div class="card card-pad" style="max-width:760px"><span class="{{ notification.notification_type|badge }}">{{ notification.get_notification_type_display }}</span>
+    <p class="mt-2">{{ notification.message|linebreaksbr }}</p>
+    <div class="form-actions"><a class="btn btn-secondary" href="{% url 'notification_list' %}">Back</a><a class="btn btn-ghost text-danger" href="{% url 'notification_delete' notification.pk %}">Delete</a></div></div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Delete user{% endblock %}
+{% block crumb %}Team{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<div class="card confirm-card">
+    <div class="confirm-icon">{% include "partials/icon.html" with name="trash" %}</div>
+    <h1>Delete {{ user_obj.username }}?</h1>
+    <p class="muted">This permanently removes the account and their notifications. This cannot be undone.</p>
+    <form method="post" class="form-actions">{% csrf_token %}<button class="btn btn-danger" type="submit">Yes, delete</button><a class="btn btn-secondary" href="{% url 'user_list' %}">Cancel</a></form>
+</div>
+{% endblock %}

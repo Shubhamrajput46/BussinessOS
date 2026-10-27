@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Dashboard{% endblock %}
+{% block crumb %}Dashboard{% endblock %}
+{% block header %}
+<section class="hero">
+    <div>
+        <div class="eyebrow">BUSINESS OVERVIEW</div>
+        <h1>Good to see you, {{ request.user.username }}.</h1>
+        <p>Here is how {{ organisation.name }} is performing.</p>
+    </div>
+    <div class="hero-date"><span id="currentDay">TODAY</span><strong id="currentDate">--</strong></div>
+</section>
+{% endblock %}
+{% block content %}
+<section class="kpis">
+    <div class="kpi"><div class="kpi-top">Total revenue<span class="kpi-icon">₹</span></div><span class="kpi-value">{{ total_sales|inr }}</span><div class="kpi-note">Excluding cancelled orders</div></div>
+    <div class="kpi"><div class="kpi-top">Orders<span class="kpi-icon blue">{% include "partials/icon.html" with name="cart" %}</span></div><span class="kpi-value">{{ total_orders }}</span><div class="kpi-note">Active business orders</div></div>
+    <div class="kpi"><div class="kpi-top">Customers<span class="kpi-icon violet">{% include "partials/icon.html" with name="users" %}</span></div><span class="kpi-value">{{ total_customers }}</span><div class="kpi-note">Active customers</div></div>
+    <div class="kpi"><div class="kpi-top">Products<span class="kpi-icon orange">{% include "partials/icon.html" with name="box" %}</span></div><span class="kpi-value">{{ total_products }}</span><div class="kpi-note">In your catalogue</div></div>
+</section>
+<section class="kpis">
+    <div class="kpi"><div class="kpi-top">Expenses<span class="kpi-icon red">{% include "partials/icon.html" with name="down" %}</span></div><span class="kpi-value">{{ total_expenses|inr }}</span></div>
+    <div class="kpi"><div class="kpi-top">Payments received<span class="kpi-icon">{% include "partials/icon.html" with name="card" %}</span></div><span class="kpi-value">{{ total_payments|inr }}</span></div>
+    <div class="kpi"><div class="kpi-top">Profit<span class="kpi-icon {% if profit < 0 %}red{% endif %}">{% include "partials/icon.html" with name="chart" %}</span></div><span class="kpi-value {% if profit < 0 %}text-danger{% endif %}">{{ profit|inr }}</span><div class="kpi-note">Revenue minus expenses</div></div>
+    <div class="kpi"><div class="kpi-top">Tomorrow's forecast<span class="kpi-icon violet">{% include "partials/icon.html" with name="zap" %}</span></div>
+        {% if latest_forecast %}<span class="kpi-value">{{ latest_forecast.predicted_sales|inr }}</span><div class="kpi-note">{{ latest_forecast.forecast_date|date:"d M Y" }}</div>
+        {% else %}<span class="kpi-value">—</span><div class="kpi-note"><a href="{% url 'forecast_list' %}">Generate a forecast</a></div>{% endif %}</div>
+</section>
+
+<section class="grid grid-main">
+    <div class="card">
+        <div class="card-head"><h2>Revenue by month</h2><a href="{% url 'analytics_dashboard' %}" class="btn btn-secondary btn-sm">View analytics</a></div>
+        <div class="card-body">
+            {% if has_chart %}<div class="chart-box" id="revenueChart"></div>
+            {% else %}{% include "partials/empty.html" with icon="chart" title="No revenue yet" text="Create your first order to see revenue here." url="/orders/add/" label="New order" %}{% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-head"><h2>Low stock</h2>{% if low_stock_count %}<span class="badge badge-danger">{{ low_stock_count }}</span>{% endif %}</div>
+        {% for p in low_stock_products %}
+        <div class="list-row"><div><a class="cell-title" href="{% url 'product_edit' p.pk %}">{{ p.name }}</a><small>{{ p.sku }}</small></div><span class="badge badge-danger">{{ p.stock_quantity }} left</span></div>
+        {% empty %}{% include "partials/empty.html" with icon="check" title="All stocked up" text="No products are below their threshold." %}{% endfor %}
+    </div>
+</section>
+
+<section class="grid grid-2 mt-2">
+    <div class="card">
+        <div class="card-head"><h2>Recent orders</h2><a href="{% url 'order_list' %}" class="btn btn-ghost btn-sm">View all</a></div>
+        {% for o in recent_orders %}
+        <div class="list-row"><div><a class="cell-title" href="{% url 'order_detail' o.pk %}">{{ o.order_number }}</a><small>{{ o.customer.name }} · {{ o.created_at|date:"d M" }}</small></div>
+            <div class="text-right"><strong>{{ o.total_amount|inr }}</strong><br><span class="{{ o.status|badge }}">{{ o.get_status_display }}</span></div></div>
+        {% empty %}{% include "partials/empty.html" with icon="cart" title="No orders yet" text="Orders you create will show up here." %}{% endfor %}
+    </div>
+    <div class="card">
+        <div class="card-head"><h2>Recent payments</h2>{% if nav.finance %}<a href="{% url 'payment_list' %}" class="btn btn-ghost btn-sm">View all</a>{% endif %}</div>
+        {% for p in recent_payments %}
+        <div class="list-row"><div><span class="cell-title">{{ p.order.order_number }}</span><small>{{ p.order.customer.name }} · {{ p.get_method_display }}</small></div>
+            <div class="text-right"><strong>{{ p.amount|inr }}</strong><br><span class="{{ p.status|badge }}">{{ p.get_status_display }}</span></div></div>
+        {% empty %}{% include "partials/empty.html" with icon="card" title="No payments yet" text="Recorded payments will show up here." %}{% endfor %}
+    </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+{% if has_chart %}
+{{ chart_json|json_script:"chart-data" }}
+{% load static %}
+<script src="{% static 'js/charts.js' %}"></script>
+<script>
+(function () {
+    var d = JSON.parse(document.getElementById("chart-data").textContent);
+    BosCharts.render("revenueChart", { type: "bar", labels: d.labels, series: [{ name: "Revenue", values: d.values }] });
+})();
+</script>
+{% endif %}
+{% endblock %}

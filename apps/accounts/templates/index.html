@@ -1,0 +1,165 @@
+{% extends "base_public.html" %}
+{% block title %}BusinessOS - Run your whole business from one place{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<section class="pub-hero-wrap">
+  <div class="pub-section pub-hero">
+    <div>
+        <span class="pub-pill">{% include "partials/icon.html" with name="zap" %} Now with AI sales forecasting</span>
+        <h1>Sell, stock, bill and grow &mdash; <em>from one workspace.</em></h1>
+        <p class="lead">BusinessOS brings orders, inventory, customers, invoices, payments, expenses and analytics together, so your team stops juggling spreadsheets and starts running the business.</p>
+        <div class="flex gap-1 wrap">
+            {% if request.user.is_authenticated %}<a class="btn btn-primary btn-lg" href="{% url 'dashboard' %}">Open dashboard</a>
+            {% else %}<a class="btn btn-primary btn-lg" href="{% url 'signup' %}">Start free</a><a class="btn btn-secondary btn-lg" href="{% url 'login' %}">Sign in</a>{% endif %}
+        </div>
+        <ul class="pub-checks"><li>No credit card</li><li>Set up in minutes</li><li>Role-based access</li></ul>
+    </div>
+
+    <div class="pub-mock" aria-hidden="true">
+        <div class="mock-bar"><i></i><i></i><i></i><span>app.businessos / dashboard</span></div>
+        <div class="mock-body">
+            <div class="mock-side"><b>B</b><span class="on"></span><span></span><span></span><span></span><span></span></div>
+            <div class="mock-main">
+                <div class="mock-kpis">
+                    <div><small>Revenue</small><strong>₹4,82,300</strong><em>+12.4%</em></div>
+                    <div><small>Orders</small><strong>1,284</strong><em>+8.1%</em></div>
+                    <div><small>Profit</small><strong>₹1,36,900</strong><em>+5.6%</em></div>
+                </div>
+                <div class="mock-chart">
+                    <div class="bars"><i style="height:38%"></i><i style="height:52%"></i><i style="height:44%"></i><i style="height:66%"></i><i style="height:58%"></i><i style="height:80%"></i><i style="height:92%"></i></div>
+                </div>
+                <div class="mock-rows"><div><span></span><b></b></div><div><span></span><b></b></div><div><span></span><b></b></div></div>
+            </div>
+        </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<section class="pub-strip">
+    <div class="pub-strip-inner">
+        <div><strong>11</strong><span>Connected modules</span></div>
+        <div><strong>5</strong><span>Team roles</span></div>
+        <div><strong>100%</strong><span>REST API coverage</span></div>
+        <div><strong>24/7</strong><span>Real-time stock alerts</span></div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="pub-section" id="features">
+    <div class="pub-head"><div class="eyebrow">Features</div><h2>Everything your business needs, nothing it doesn't</h2>
+        <p class="muted">Every module shares the same data, so an order updates stock, invoices and reports automatically.</p></div>
+    <div class="feature-grid">
+        <div class="feature"><div class="kpi-icon">{% include "partials/icon.html" with name="cart" %}</div><h3>Order management</h3><p>Create orders in seconds with live totals, discounts and tax. Cancelling restores stock automatically.</p></div>
+        <div class="feature"><div class="kpi-icon blue">{% include "partials/icon.html" with name="layers" %}</div><h3>Smart inventory</h3><p>A complete stock ledger with stock-in, stock-out, adjustments and low-stock alerts before you run out.</p></div>
+        <div class="feature"><div class="kpi-icon orange">{% include "partials/icon.html" with name="file" %}</div><h3>Invoices &amp; billing</h3><p>Turn any order into a printable invoice with due dates, payments received and balance due.</p></div>
+        <div class="feature"><div class="kpi-icon violet">{% include "partials/icon.html" with name="card" %}</div><h3>Payment tracking</h3><p>Record cash, UPI, card and bank payments. Invoices flip to paid the moment the balance is cleared.</p></div>
+        <div class="feature"><div class="kpi-icon red">{% include "partials/icon.html" with name="down" %}</div><h3>Expense control</h3><p>Log rent, salaries, utilities and more by category, then see real profit instead of just revenue.</p></div>
+        <div class="feature"><div class="kpi-icon">{% include "partials/icon.html" with name="users" %}</div><h3>Customer records</h3><p>Keep every customer's contact details and order history organised and searchable.</p></div>
+    </div>
+</section>
+
+<!-- MODULE SHOWCASES -->
+<section class="pub-section pub-alt" id="modules">
+  <div class="split">
+    <div class="split-copy"><div class="eyebrow">Sales &amp; stock</div><h2>Never oversell. Never run out.</h2>
+        <p class="muted">Stock is reserved the moment an order is placed and returned when it is cancelled. Every movement is written to an auditable ledger.</p>
+        <ul class="tick-list"><li>Live order totals as you pick products</li><li>Automatic low-stock notifications</li><li>Full movement history per product</li></ul></div>
+    <div class="split-visual card card-pad" aria-hidden="true">
+        <div class="mini-row"><span>Basmati Rice 5kg</span><b>100 in stock</b></div>
+        <div class="mini-row"><span>Toor Dal 1kg</span><b class="text-danger">8 left</b></div>
+        <div class="mini-row"><span>Sunflower Oil 1L</span><b>175 in stock</b></div>
+        <div class="progress mt-2"><span style="width:68%"></span></div><small class="muted">Inventory health 68%</small>
+    </div>
+  </div>
+  <div class="split reverse">
+    <div class="split-copy"><div class="eyebrow">Finance</div><h2>Know exactly where your money stands.</h2>
+        <p class="muted">Invoices, payments and expenses live together, so revenue, cash received and profit are always up to date.</p>
+        <ul class="tick-list"><li>Printable, professional invoices</li><li>Auto &ldquo;paid&rdquo; status from payments</li><li>Expense categories and totals</li></ul></div>
+    <div class="split-visual card card-pad" aria-hidden="true">
+        <div class="mini-row"><span>INV-0012</span><span class="badge badge-success">Paid</span></div>
+        <div class="mini-row"><span>INV-0013</span><span class="badge badge-info">Issued</span></div>
+        <div class="mini-row"><span>INV-0014</span><span class="badge badge-warning">Pending</span></div>
+        <div class="totals mt-2"><div class="grand"><span>Balance due</span><span>₹18,450.00</span></div></div>
+    </div>
+  </div>
+  <div class="split">
+    <div class="split-copy"><div class="eyebrow">Analytics &amp; AI</div><h2>See the trend before it arrives.</h2>
+        <p class="muted">Month-by-month sales, expenses and profit with date filters, plus an AI forecast that projects your daily sales for the coming days.</p>
+        <ul class="tick-list"><li>Revenue, expense and profit charts</li><li>7, 14 or 30-day AI sales forecast</li><li>Scheduled daily forecast refresh</li></ul></div>
+    <div class="split-visual card card-pad" aria-hidden="true">
+        <div class="mock-chart"><div class="bars"><i style="height:30%"></i><i style="height:42%"></i><i style="height:55%"></i><i style="height:48%"></i><i style="height:70%"></i><i class="ghost" style="height:78%"></i><i class="ghost" style="height:86%"></i></div></div>
+        <small class="muted">Solid = actual &middot; Faded = AI forecast</small>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="pub-section" id="how">
+    <div class="pub-head"><div class="eyebrow">How it works</div><h2>Up and running in three steps</h2></div>
+    <div class="steps">
+        <div class="step"><span>1</span><h3>Create your workspace</h3><p>Sign up with your business name. You become the Owner with full control.</p></div>
+        <div class="step"><span>2</span><h3>Add products &amp; customers</h3><p>Add your catalogue, set prices and stock levels, and invite your team.</p></div>
+        <div class="step"><span>3</span><h3>Run the business</h3><p>Take orders, bill customers, record payments and watch the dashboard update live.</p></div>
+    </div>
+</section>
+
+<!-- ROLES -->
+<section class="pub-section pub-alt" id="roles">
+    <div class="pub-head"><div class="eyebrow">Teams &amp; security</div><h2>The right access for every person</h2>
+        <p class="muted">Five built-in roles keep sensitive data in the right hands.</p></div>
+    <div class="role-grid">
+        <div class="role"><span class="badge badge-info">Owner</span><p>Full control of the workspace, team and settings.</p></div>
+        <div class="role"><span class="badge badge-info">Admin</span><p>Manages operations, finance and team members.</p></div>
+        <div class="role"><span class="badge badge-info">Manager</span><p>Runs orders, stock and reports day to day.</p></div>
+        <div class="role"><span class="badge">Staff</span><p>Creates orders, manages customers and stock.</p></div>
+        <div class="role"><span class="badge badge-warning">Accountant</span><p>Handles expenses, payments and invoices.</p></div>
+    </div>
+    <div class="trust">
+        <div>{% include "partials/icon.html" with name="check" %} Data isolated per organisation</div>
+        <div>{% include "partials/icon.html" with name="check" %} Hashed passwords &amp; secure reset links</div>
+        <div>{% include "partials/icon.html" with name="check" %} Audit-friendly stock ledger</div>
+    </div>
+</section>
+
+<!-- DEVELOPERS -->
+<section class="pub-section" id="developers">
+  <div class="split">
+    <div class="split-copy"><div class="eyebrow">For developers</div><h2>A complete REST API, built in.</h2>
+        <p class="muted">Connect your website, mobile app or accounting tools. JWT authentication, filtering, pagination and interactive Swagger documentation come out of the box.</p>
+        <div class="flex gap-1 wrap mt-2"><a class="btn btn-secondary" href="/api/v1/docs/">Open API docs</a></div></div>
+    <pre class="code-block" aria-label="API example"><code><span class="c"># 1. Get a token</span>
+POST /api/v1/token/
+{ "username": "owner", "password": "••••••••" }
+
+<span class="c"># 2. Create an order (stock is reserved)</span>
+POST /api/v1/Order/
+Authorization: Bearer &lt;access&gt;
+{ "customer": 1,
+  "items_input": [{ "product": 3, "quantity": 2 }] }</code></pre>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="pub-section pub-alt" id="faq">
+    <div class="pub-head"><div class="eyebrow">FAQ</div><h2>Questions, answered</h2></div>
+    <div class="faq">
+        <details><summary>Is my business data separate from other companies?</summary><p>Yes. Every workspace is isolated, and users only ever see data belonging to their own organisation.</p></details>
+        <details><summary>Can my team use it on a phone?</summary><p>Yes. The whole app is responsive, with a mobile menu and tables that reshape into easy-to-read cards.</p></details>
+        <details><summary>What if I forget my password?</summary><p>Use &ldquo;Forgot password?&rdquo; on the sign-in page. We email a secure, time-limited link to create a new one.</p></details>
+        <details><summary>How does the AI forecast work?</summary><p>It studies your daily sales history and projects a trend for the next 7, 14 or 30 days. It needs orders on at least two different days.</p></details>
+        <details><summary>Can I connect my own app or website?</summary><p>Yes. Every module is available through the REST API with JWT login and full documentation.</p></details>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="pub-section">
+    <div class="cta">
+        <h2>Ready to run your business the smart way?</h2>
+        <p>Create your workspace in under a minute and invite your team today.</p>
+        {% if request.user.is_authenticated %}<a class="btn btn-secondary btn-lg" href="{% url 'dashboard' %}">Go to dashboard</a>
+        {% else %}<div class="flex gap-1 wrap" style="justify-content:center"><a class="btn btn-secondary btn-lg" href="{% url 'signup' %}">Create your workspace</a><a class="btn btn-ghost btn-lg" style="color:#fff" href="{% url 'login' %}">Sign in</a></div>{% endif %}
+    </div>
+</section>
+{% endblock %}

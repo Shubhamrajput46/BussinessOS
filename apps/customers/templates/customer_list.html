@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+{% block crumb %}Customers{% endblock %}
+{% block page_title %}Customers{% endblock %}
+{% block page_subtitle %}People and businesses you sell to.{% endblock %}
+{% block page_actions %}<a href="{% url 'customer_create' %}" class="btn btn-primary">{% include "partials/icon.html" with name="plus" %} Add customer</a>{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="toolbar"><form method="get">
+        <div class="search">{% include "partials/icon.html" with name="search" %}<input type="search" name="q" value="{{ q }}" placeholder="Search name, phone or email"></div>
+        <select name="status" data-autosubmit aria-label="Filter"><option value="">All customers</option>
+            <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option></select>
+        <button class="btn btn-secondary" type="submit">Search</button>
+    </form></div>
+    {% if customers %}
+    <div class="table-wrap"><table class="table stack">
+        <thead><tr><th>Customer</th><th>Phone</th><th>Email</th><th>Status</th><th>Added</th><th></th></tr></thead>
+        <tbody>{% for c in customers %}<tr>
+            <td data-label="Customer"><span class="cell-title">{{ c.name }}</span>{% if c.address %}<span class="cell-sub">{{ c.address|truncatechars:50 }}</span>{% endif %}</td>
+            <td data-label="Phone">{{ c.phone }}</td>
+            <td data-label="Email">{{ c.email|default:"—" }}</td>
+            <td data-label="Status"><span class="{% if c.is_active %}badge badge-success{% else %}badge badge-danger{% endif %}">{% if c.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+            <td data-label="Added">{{ c.created_at|date:"d M Y" }}</td>
+            <td class="actions"><div class="row-actions">
+                {% if request.user.role in 'OWNER ADMIN MANAGER' %}<a href="{% url 'customer_edit' c.pk %}" class="btn btn-secondary btn-sm">Edit</a><a href="{% url 'customer_delete' c.pk %}" class="btn btn-ghost btn-sm text-danger">Delete</a>{% endif %}
+            </div></td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{% include "partials/empty.html" with icon="users" title="No customers found" text="Add a customer to start creating orders." url="/customers/add/" label="Add customer" %}{% endif %}
+    {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

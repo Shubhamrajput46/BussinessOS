@@ -1,0 +1,12 @@
+{% if page_obj %}
+<div class="pagination">
+    <span>{% if page_obj.paginator.count %}Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}{% else %}No results{% endif %}</span>
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Pagination">
+        {% if page_obj.has_previous %}<a class="btn btn-secondary btn-sm" href="?{% if qs %}{{ qs }}&{% endif %}page={{ page_obj.previous_page_number }}">&larr; Prev</a>{% endif %}
+        <span class="btn btn-ghost btn-sm">Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="btn btn-secondary btn-sm" href="?{% if qs %}{{ qs }}&{% endif %}page={{ page_obj.next_page_number }}">Next &rarr;</a>{% endif %}
+    </nav>
+    {% endif %}
+</div>
+{% endif %}

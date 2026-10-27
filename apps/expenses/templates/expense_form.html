@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{% if expense %}Edit expense{% else %}Add expense{% endif %}{% endblock %}
+{% block crumb %}Expenses{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'expense_list' %}">{% include "partials/icon.html" with name="back" %} Back to expenses</a>{% endblock %}
+{% block page_title %}{% if expense %}Edit expense{% else %}Add expense{% endif %}{% endblock %}
+{% block content %}
+<div class="card card-pad" style="max-width:760px">
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+        <div class="form-grid">
+            <div class="field full"><label for="title">Title <span class="req">*</span></label><input id="title" name="title" value="{% fv posted expense 'title' %}" required></div>
+            <div class="field"><label for="category">Category <span class="req">*</span></label><select id="category" name="category" required>{% for v, l in categories %}<option value="{{ v }}" {% fsel posted expense 'category' v 'OTHER' %}>{{ l }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="amount">Amount (₹) <span class="req">*</span></label><input id="amount" name="amount" type="number" step="0.01" min="0.01" inputmode="decimal" value="{% fv posted expense 'amount' %}" required></div>
+            <div class="field"><label for="expense_date">Date <span class="req">*</span></label><input id="expense_date" name="expense_date" type="date" value="{% fv posted expense 'expense_date' %}" required></div>
+            <div class="field full"><label for="description">Description</label><textarea id="description" name="description">{% fv posted expense 'description' %}</textarea></div>
+            <div class="field full"><label class="check"><input type="checkbox" name="is_active" {% fchk posted expense 'is_active' True %}> Count this expense in reports</label></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">{% if expense %}Save changes{% else %}Add expense{% endif %}</button><a class="btn btn-secondary" href="{% url 'expense_list' %}">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

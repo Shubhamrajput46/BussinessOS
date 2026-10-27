@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Settings{% endblock %}
+{% block crumb %}Settings{% endblock %}
+{% block page_title %}Organisation settings{% endblock %}
+{% block page_subtitle %}Business details shown on invoices.{% endblock %}
+{% block content %}
+<div class="card card-pad" style="max-width:760px">
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+        <div class="form-grid">
+            <div class="field full"><label for="name">Business name <span class="req">*</span></label><input id="name" name="name" value="{% fv posted organisation 'name' %}" required></div>
+            <div class="field"><label for="email">Business email <span class="req">*</span></label><input id="email" name="email" type="email" value="{% fv posted organisation 'email' %}" required></div>
+            <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" value="{% fv posted organisation 'phone' %}"></div>
+            <div class="field full"><label for="address">Address</label><textarea id="address" name="address">{% fv posted organisation 'address' %}</textarea></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">Save settings</button></div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static ui %}
+{% block title %}AI Forecast{% endblock %}
+{% block crumb %}AI Forecast{% endblock %}
+{% block page_title %}AI sales forecast{% endblock %}
+{% block page_subtitle %}A linear-regression trend over your daily sales history.{% endblock %}
+{% block page_actions %}
+{% if can_generate %}<form method="post" action="{% url 'forecast_generate' %}" class="flex gap-1">{% csrf_token %}
+<select name="days" aria-label="Days" style="width:auto"><option value="7">Next 7 days</option><option value="14">Next 14 days</option><option value="30">Next 30 days</option></select>
+<button class="btn btn-primary" type="submit">{% include "partials/icon.html" with name="zap" %} Generate</button></form>{% endif %}
+{% endblock %}
+{% block content %}
+{% if forecasts %}
+<div class="card mb-2"><div class="card-head"><h2>Predicted daily sales</h2></div><div class="card-body"><div class="chart-box" id="forecastChart"></div></div></div>
+<div class="card"><div class="table-wrap"><table class="table stack">
+    <thead><tr><th>Date</th><th class="num">Predicted sales</th><th>Generated</th></tr></thead>
+    <tbody>{% for f in forecasts %}<tr><td data-label="Date">{{ f.forecast_date|date:"D, d M Y" }}</td><td data-label="Predicted sales" class="num">{{ f.predicted_sales|inr }}</td><td data-label="Generated">{{ f.created_at|date:"d M, H:i" }}</td></tr>{% endfor %}</tbody>
+</table></div></div>
+{% else %}
+<div class="card">{% include "partials/empty.html" with icon="zap" title="No forecasts yet" text="Forecasts need orders on at least two different days. Generate one once you have some sales history." %}</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+{% if forecasts %}
+<script src="{% static 'js/charts.js' %}"></script>
+<script>
+(function () {
+    var rows = [{% for f in forecasts reversed %}["{{ f.forecast_date|date:'d M' }}", {{ f.predicted_sales|stringformat:'s' }}]{% if not forloop.last %},{% endif %}{% endfor %}];
+    BosCharts.render("forecastChart", { type: "line", labels: rows.map(function (r) { return r[0]; }), series: [{ name: "Forecast", values: rows.map(function (r) { return r[1]; }) }] });
+})();
+</script>
+{% endif %}
+{% endblock %}

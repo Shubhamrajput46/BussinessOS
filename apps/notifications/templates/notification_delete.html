@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Delete notification{% endblock %}{% block crumb %}Notifications{% endblock %}{% block header %}{% endblock %}
+{% block content %}
+<div class="card confirm-card"><div class="confirm-icon">{% include "partials/icon.html" with name="trash" %}</div>
+    <h1>Delete this notification?</h1><p class="muted">{{ notification.title }}</p>
+    <form method="post" class="form-actions">{% csrf_token %}<button class="btn btn-danger" type="submit">Yes, delete</button><a class="btn btn-secondary" href="{% url 'notification_list' %}">Cancel</a></form></div>
+{% endblock %}

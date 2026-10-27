@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Notifications{% endblock %}
+{% block crumb %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block page_subtitle %}{{ unread_total }} unread{% endblock %}
+{% block page_actions %}
+<a class="btn btn-secondary" href="?{% if show != 'unread' %}show=unread{% endif %}">{% if show == 'unread' %}Show all{% else %}Unread only{% endif %}</a>
+{% if unread_total %}<form method="post" action="{% url 'notification_mark_all_read' %}">{% csrf_token %}<button class="btn btn-primary" type="submit">{% include "partials/icon.html" with name="check" %} Mark all read</button></form>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card">
+    {% for n in notifications %}
+    <div class="notice-item {% if not n.is_read %}unread{% endif %}">
+        <span class="notice-dot"></span>
+        <div class="notice-body"><a class="title" href="{% url 'notification_detail' n.pk %}">{{ n.title }}</a> <span class="{{ n.notification_type|badge }}">{{ n.get_notification_type_display }}</span>
+            <p>{{ n.message|truncatechars:140 }}</p><small class="muted">{{ n.created_at|timesince }} ago</small></div>
+        <div class="row-actions"><a class="btn btn-ghost btn-sm text-danger" href="{% url 'notification_delete' n.pk %}">Delete</a></div>
+    </div>
+    {% empty %}{% include "partials/empty.html" with icon="bell" title="You are all caught up" text="New alerts about orders, stock and payments appear here." %}{% endfor %}
+    {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

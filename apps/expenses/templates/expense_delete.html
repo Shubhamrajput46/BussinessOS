@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load ui %}
+{% block title %}Delete expense{% endblock %}{% block crumb %}Expenses{% endblock %}{% block header %}{% endblock %}
+{% block content %}
+<div class="card confirm-card"><div class="confirm-icon">{% include "partials/icon.html" with name="trash" %}</div>
+    <h1>Delete this expense?</h1><p class="muted"><strong>{{ expense.title }}</strong> · {{ expense.amount|inr }}</p>
+    <form method="post" class="form-actions">{% csrf_token %}<button class="btn btn-danger" type="submit">Yes, delete</button><a class="btn btn-secondary" href="{% url 'expense_list' %}">Cancel</a></form></div>
+{% endblock %}

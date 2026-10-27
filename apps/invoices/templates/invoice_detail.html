@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{{ invoice.invoice_number }}{% endblock %}
+{% block crumb %}Invoices{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'invoice_list' %}">{% include "partials/icon.html" with name="back" %} Back to invoices</a>{% endblock %}
+{% block page_title %}{{ invoice.invoice_number }} <span class="{{ invoice.status|badge }}" style="vertical-align:middle">{{ invoice.get_status_display }}</span>{% endblock %}
+{% block page_subtitle %}For order {{ invoice.order.order_number }}{% endblock %}
+{% block page_actions %}
+<button class="btn btn-secondary" type="button" onclick="window.print()">{% include "partials/icon.html" with name="print" %} Print</button>
+{% if request.user.role in 'OWNER ADMIN ACCOUNTANT' %}<a class="btn btn-secondary" href="{% url 'invoice_edit' invoice.pk %}">Edit</a><a class="btn btn-primary" href="{% url 'payment_create' %}?order={{ invoice.order.pk }}">Record payment</a>{% endif %}
+{% if request.user.role in 'OWNER ADMIN' %}<a class="btn btn-ghost text-danger" href="{% url 'invoice_delete' invoice.pk %}">Delete</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="card invoice-paper">
+    <div class="invoice-head">
+        <div><h2>INVOICE</h2><p class="muted mb-0 mono">{{ invoice.invoice_number }}</p></div>
+        <div class="text-right"><strong>{{ invoice.organisation.name }}</strong><br><span class="muted">{{ invoice.organisation.email }}{% if invoice.organisation.phone %}<br>{{ invoice.organisation.phone }}{% endif %}</span>{% if invoice.organisation.address %}<br><span class="muted">{{ invoice.organisation.address|linebreaksbr }}</span>{% endif %}</div>
+    </div>
+    <div class="grid grid-2 mb-2">
+        <dl class="dl"><dt>Bill to</dt><dd>{{ invoice.order.customer.name }}<br><span class="muted">{{ invoice.order.customer.phone }}</span></dd></dl>
+        <dl class="dl"><dt>Issued</dt><dd>{{ invoice.issue_date|date:"d M Y" }}</dd><dt>Due</dt><dd>{{ invoice.due_date|date:"d M Y"|default:"—" }}</dd></dl>
+    </div>
+    <div class="table-wrap"><table class="table stack">
+        <thead><tr><th>Item</th><th class="num">Unit price</th><th class="num">Qty</th><th class="num">Amount</th></tr></thead>
+        <tbody>{% for i in invoice.order.items.all %}<tr><td data-label="Item">{{ i.product.name }}</td><td data-label="Unit price" class="num">{{ i.unit_price|inr }}</td><td data-label="Qty" class="num">{{ i.quantity }}</td><td data-label="Amount" class="num">{{ i.total_price|inr }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    <div class="totals mt-2">
+        <div><span class="muted">Subtotal</span><span>{{ invoice.subtotal|inr }}</span></div>
+        <div><span class="muted">Discount</span><span>−{{ invoice.discount|inr }}</span></div>
+        <div><span class="muted">Tax</span><span>{{ invoice.tax|inr }}</span></div>
+        <div class="grand"><span>Total</span><span>{{ invoice.total_amount|inr }}</span></div>
+        <div><span class="muted">Paid</span><span class="text-success">{{ paid_amount|inr }}</span></div>
+        <div><strong>Balance due</strong><strong class="{% if balance_due %}text-danger{% else %}text-success{% endif %}">{{ balance_due|inr }}</strong></div>
+    </div>
+    {% if invoice.notes %}<hr><p class="muted mb-0"><strong>Notes:</strong> {{ invoice.notes }}</p>{% endif %}
+</div>
+{% endblock %}

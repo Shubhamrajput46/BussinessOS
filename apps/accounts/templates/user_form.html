@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{% if user_obj %}Edit user{% else %}Add user{% endif %}{% endblock %}
+{% block crumb %}Team{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'user_list' %}">{% include "partials/icon.html" with name="back" %} Back to team</a>{% endblock %}
+{% block page_title %}{% if user_obj %}Edit {{ user_obj.username }}{% else %}Add team member{% endif %}{% endblock %}
+{% block content %}{% load ui %}
+<div class="card card-pad" style="max-width:760px">
+    {% include "partials/form_error.html" %}
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="form-grid">
+            <div class="field"><label for="username">Username{% if not user_obj %} <span class="req">*</span>{% endif %}</label>
+                <input id="username" name="username" value="{% fv posted user_obj 'username' %}" {% if user_obj %}readonly{% else %}required{% endif %}></div>
+            <div class="field"><label for="email">Email <span class="req">*</span></label>
+                <input id="email" name="email" type="email" value="{% fv posted user_obj 'email' %}" required></div>
+            <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" value="{% fv posted user_obj 'phone' %}"></div>
+            <div class="field"><label for="role">Role</label>
+                <select id="role" name="role">{% for value, label in roles %}<option value="{{ value }}" {% fsel posted user_obj 'role' value 'STAFF' %}>{{ label }}</option>{% endfor %}</select></div>
+            {% if not user_obj %}
+            <div class="field full"><label for="password">Password <span class="req">*</span></label>
+                <div class="input-group"><input id="password" name="password" type="password" autocomplete="new-password" required><button class="toggle-pass" type="button">Show</button></div></div>
+            {% endif %}
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">{% if user_obj %}Save changes{% else %}Create user{% endif %}</button><a class="btn btn-secondary" href="{% url 'user_list' %}">Cancel</a></div>
+    </form>
+</div>
+{% endblock %}

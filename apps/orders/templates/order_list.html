@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Orders{% endblock %}
+{% block crumb %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+{% block page_subtitle %}Track every sale from pending to completed.{% endblock %}
+{% block page_actions %}<a href="{% url 'order_create' %}" class="btn btn-primary">{% include "partials/icon.html" with name="plus" %} New order</a>{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="toolbar"><form method="get">
+        <div class="search">{% include "partials/icon.html" with name="search" %}<input type="search" name="q" value="{{ q }}" placeholder="Search order number or customer"></div>
+        <select name="status" data-autosubmit aria-label="Status"><option value="">All statuses</option>{% for v, l in statuses %}<option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+        <button class="btn btn-secondary" type="submit">Search</button>
+    </form></div>
+    {% if orders %}
+    <div class="table-wrap"><table class="table stack">
+        <thead><tr><th>Order</th><th>Customer</th><th>Date</th><th>Status</th><th class="num">Total</th><th></th></tr></thead>
+        <tbody>{% for o in orders %}<tr>
+            <td data-label="Order"><a class="cell-title" href="{% url 'order_detail' o.pk %}">{{ o.order_number }}</a></td>
+            <td data-label="Customer">{{ o.customer.name }}</td>
+            <td data-label="Date">{{ o.created_at|date:"d M Y" }}</td>
+            <td data-label="Status"><span class="{{ o.status|badge }}">{{ o.get_status_display }}</span></td>
+            <td data-label="Total" class="num">{{ o.total_amount|inr }}</td>
+            <td class="actions"><div class="row-actions"><a class="btn btn-secondary btn-sm" href="{% url 'order_detail' o.pk %}">View</a></div></td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{% include "partials/empty.html" with icon="cart" title="No orders found" text="Create an order to get started." url="/orders/add/" label="New order" %}{% endif %}
+    {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#16594a">
+    <title>{% block title %}Sign in{% endblock %} · BusinessOS</title>
+    <link rel="stylesheet" href="{% static 'css/master.css' %}">
+</head>
+<body>
+<div class="auth">
+    <aside class="auth-aside">
+        <a href="{% url 'home' %}" class="auth-brand"><span class="brand-mark">B</span> BusinessOS</a>
+        <div>
+            <h2>Run your whole business from one place.</h2>
+            <p>Orders, inventory, invoices, payments and AI sales forecasts, built for growing businesses.</p>
+            <ul><li>Real-time stock and low-stock alerts</li><li>Role based access for your whole team</li><li>One-click invoices and payment tracking</li></ul>
+        </div>
+        <small>&copy; BusinessOS</small>
+    </aside>
+    <main class="auth-main">
+        <div class="auth-card">
+            <a href="{% url 'home' %}" class="auth-brand auth-mobile-brand"><span class="brand-mark">B</span> BusinessOS</a>
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</div>
+<script src="{% static 'js/master.js' %}"></script>
+</body>
+</html>

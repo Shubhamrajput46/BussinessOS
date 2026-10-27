@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{{ order.order_number }}{% endblock %}
+{% block crumb %}Orders{% endblock %}
+{% block back %}<a class="back-link" href="{% url 'order_list' %}">{% include "partials/icon.html" with name="back" %} Back to orders</a>{% endblock %}
+{% block page_title %}{{ order.order_number }} <span class="{{ order.status|badge }}" style="vertical-align:middle">{{ order.get_status_display }}</span>{% endblock %}
+{% block page_subtitle %}{{ order.customer.name }} · {{ order.created_at|date:"d M Y, H:i" }}{% endblock %}
+{% block page_actions %}
+{% if not locked and request.user.role in 'OWNER ADMIN MANAGER' %}<a class="btn btn-secondary" href="{% url 'order_edit' order.pk %}">{% include "partials/icon.html" with name="edit" %} Edit</a>{% endif %}
+{% if order.invoice %}<a class="btn btn-secondary" href="{% url 'invoice_detail' order.invoice.pk %}">View invoice</a>{% elif nav.finance and request.user.role != 'MANAGER' %}<a class="btn btn-secondary" href="{% url 'invoice_create' %}?order={{ order.pk }}">Create invoice</a>{% endif %}
+{% endblock %}
+{% block content %}
+<div class="grid grid-main">
+    <div class="card">
+        <div class="card-head"><h2>Items</h2></div>
+        <div class="table-wrap"><table class="table stack">
+            <thead><tr><th>Product</th><th class="num">Unit price</th><th class="num">Qty</th><th class="num">Total</th></tr></thead>
+            <tbody>{% for i in order.items.all %}<tr><td data-label="Product"><span class="cell-title">{{ i.product.name }}</span><span class="cell-sub">{{ i.product.sku }}</span></td><td data-label="Unit price" class="num">{{ i.unit_price|inr }}</td><td data-label="Qty" class="num">{{ i.quantity }}</td><td data-label="Total" class="num">{{ i.total_price|inr }}</td></tr>{% endfor %}</tbody>
+        </table></div>
+        <div class="card-body"><div class="totals">
+            <div><span class="muted">Subtotal</span><span>{{ order.subtotal|inr }}</span></div>
+            <div><span class="muted">Discount</span><span>−{{ order.discount|inr }}</span></div>
+            <div><span class="muted">Tax</span><span>{{ order.tax|inr }}</span></div>
+            <div class="grand"><span>Total</span><span>{{ order.total_amount|inr }}</span></div></div></div>
+    </div>
+    <div>
+        {% if request.user.role in 'OWNER ADMIN MANAGER' %}
+        <div class="card card-pad">
+            <h2 class="mb-2">Update status</h2>
+            {% if locked %}<p class="muted mb-0">This order is {{ order.get_status_display|lower }} and can no longer be changed.</p>
+            {% else %}
+            <form method="post" action="{% url 'order_update_status' order.pk %}" data-confirm="Change the status of this order? Cancelling restores stock and cannot be undone.">{% csrf_token %}
+                <div class="field"><select name="status" aria-label="Status">{% for v, l in statuses %}<option value="{{ v }}" {% if order.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+                <button class="btn btn-primary btn-block mt-1" type="submit">Update</button>
+            </form>{% endif %}
+        </div>
+        {% endif %}
+        <div class="card">
+            <div class="card-head"><h2>Payments</h2>{% if nav.finance and request.user.role != 'MANAGER' %}<a class="btn btn-ghost btn-sm" href="{% url 'payment_create' %}?order={{ order.pk }}">Add</a>{% endif %}</div>
+            {% for p in order.payments.all %}<div class="list-row"><div><strong>{{ p.amount|inr }}</strong><small>{{ p.get_method_display }} · {{ p.payment_date|date:"d M Y" }}</small></div><span class="{{ p.status|badge }}">{{ p.get_status_display }}</span></div>
+            {% empty %}<div class="empty"><p class="mb-0">No payments recorded.</p></div>{% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Team{% endblock %}
+{% block crumb %}Team{% endblock %}
+{% block page_title %}Team{% endblock %}
+{% block page_subtitle %}People who can access {{ request.user.organisation.name }}.{% endblock %}
+{% block page_actions %}<a href="{% url 'user_create' %}" class="btn btn-primary">{% include "partials/icon.html" with name="plus" %} Add user</a>{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="table-wrap">
+    <table class="table stack">
+        <thead><tr><th>User</th><th>Role</th><th>Phone</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+        <tbody>
+        {% for u in users %}
+        <tr>
+            <td data-label="User"><span class="cell-title">{{ u.username }}{% if u == request.user %} <span class="muted">(you)</span>{% endif %}</span><span class="cell-sub">{{ u.email }}</span></td>
+            <td data-label="Role"><span class="{{ u.role|badge }}">{{ u.get_role_display }}</span></td>
+            <td data-label="Phone">{{ u.phone|default:"—" }}</td>
+            <td data-label="Status"><span class="{% if u.is_active %}badge badge-success{% else %}badge badge-danger{% endif %}">{% if u.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+            <td data-label="Joined">{{ u.date_joined|date:"d M Y" }}</td>
+            <td class="actions"><div class="row-actions">
+                {% if u != request.user and not u.role == 'OWNER' or request.user.role == 'OWNER' and u != request.user %}
+                <a href="{% url 'user_edit' u.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                <form method="post" action="{% url 'user_toggle_status' u.pk %}">{% csrf_token %}<button class="btn btn-ghost btn-sm" type="submit">{% if u.is_active %}Deactivate{% else %}Activate{% endif %}</button></form>
+                <a href="{% url 'user_delete' u.pk %}" class="btn btn-ghost btn-sm text-danger">Delete</a>
+                {% elif u == request.user %}<a href="{% url 'profile' %}" class="btn btn-secondary btn-sm">My profile</a>{% endif %}
+            </div></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}
