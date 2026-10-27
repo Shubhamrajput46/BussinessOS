@@ -3,7 +3,6 @@ services:
   db:
     image: mysql:8.4
     restart: unless-stopped
-    
     environment:
       MYSQL_DATABASE: ${DB_NAME:-businessos}
       MYSQL_USER: ${DB_USER:-businessos}

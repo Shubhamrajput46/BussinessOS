@@ -39,6 +39,12 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0,testserver")
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
+# Render sets this automatically (e.g. myapp.onrender.com)
+_render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if _render_host:
+    ALLOWED_HOSTS.append(_render_host)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{_render_host}")
+
 AUTH_USER_MODEL = "accounts.User"
 
 INSTALLED_APPS = [
@@ -112,9 +118,32 @@ SESSION_COOKIE_AGE = int(os.getenv("SESSION_COOKIE_AGE", 1800))
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # ---------------------------------------------------------------------------
-# Database: MySQL when DB_HOST is configured, otherwise SQLite (dev / CI).
+# Database: PostgreSQL via DATABASE_URL, MySQL via DB_HOST, otherwise SQLite (dev / CI).
 # ---------------------------------------------------------------------------
-if os.getenv("DB_HOST"):
+if os.getenv("DATABASE_URL"):
+    # PostgreSQL on Render / Railway / Heroku etc.
+    import dj_database_url
+
+    DATABASES = {
+        "default": dj_database_url.parse(
+            os.environ["DATABASE_URL"], conn_max_age=600, conn_health_checks=True
+        )
+    }
+elif os.getenv("DB_HOST"):
+    # MySQL. Prefer mysqlclient when installed, otherwise fall back to pure-Python PyMySQL.
+    try:
+        import MySQLdb  # noqa: F401
+    except ImportError:
+        import pymysql
+
+        pymysql.version_info = (2, 2, 1, "final", 0)  # satisfy Django's driver version check
+        pymysql.install_as_MySQLdb()
+
+    _mysql_options = {"charset": "utf8mb4"}
+    if os.getenv("DB_SSL_CA"):
+        # e.g. /etc/ssl/certs/ca-certificates.crt (system CAs on Render) or a provider's ca.pem
+        _mysql_options["ssl"] = {"ca": os.environ["DB_SSL_CA"]}
+
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
@@ -124,7 +153,7 @@ if os.getenv("DB_HOST"):
             "HOST": os.getenv("DB_HOST"),
             "PORT": os.getenv("DB_PORT", "3306"),
             "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", 60)),
-            "OPTIONS": {"charset": "utf8mb4"},
+            "OPTIONS": _mysql_options,
         }
     }
 else:

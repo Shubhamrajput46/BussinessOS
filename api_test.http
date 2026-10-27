@@ -1,0 +1,45 @@
+### 1) Get a token (username OR email works). Paste the "access" value below.
+POST http://127.0.0.1:8000/api/v1/token/
+Content-Type: application/json
+
+{ "username": "owner", "password": "Owner@12345" }
+
+### 2) Use it
+@token = PASTE_ACCESS_TOKEN_HERE
+
+GET http://127.0.0.1:8000/api/v1/dashboard/
+Authorization: Bearer {{token}}
+
+###
+GET http://127.0.0.1:8000/api/v1/Product/?search=rice&ordering=-id
+Authorization: Bearer {{token}}
+
+###
+POST http://127.0.0.1:8000/api/v1/Product/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "name": "Test Item", "sku": "TEST-001", "cost_price": 50, "selling_price": 70, "stock_quantity": 10 }
+
+### Create an order (stock is reserved automatically)
+POST http://127.0.0.1:8000/api/v1/Order/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "customer": 1, "discount": 0, "tax": 0, "items_input": [ { "product": 1, "quantity": 2 } ] }
+
+### Change order status (PENDING / CONFIRMED / COMPLETED / CANCELLED)
+POST http://127.0.0.1:8000/api/v1/Order/1/status/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "status": "CONFIRMED" }
+
+### AI forecast
+POST http://127.0.0.1:8000/api/v1/forecasts/generate/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "days": 7 }
+
+### Swagger UI: http://127.0.0.1:8000/api/v1/docs/   |   ReDoc: /api/v1/redoc/
