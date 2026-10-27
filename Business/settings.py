@@ -117,32 +117,45 @@ ASGI_APPLICATION = "Business.asgi.application"
 SESSION_COOKIE_AGE = int(os.getenv("SESSION_COOKIE_AGE", 1800))
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+
 # ---------------------------------------------------------------------------
-# Database: PostgreSQL via DATABASE_URL, MySQL via DB_HOST, otherwise SQLite (dev / CI).
+# Database: PostgreSQL via DATABASE_URL, MySQL via DB_HOST, otherwise SQLite.
 # ---------------------------------------------------------------------------
+
 if os.getenv("DATABASE_URL"):
-    # PostgreSQL on Render / Railway / Heroku etc.
+    # PostgreSQL via DATABASE_URL
     import dj_database_url
 
     DATABASES = {
         "default": dj_database_url.parse(
-            os.environ["DATABASE_URL"], conn_max_age=600, conn_health_checks=True
+            os.environ["DATABASE_URL"],
+            conn_max_age=600,
+            conn_health_checks=True,
         )
     }
+
 elif os.getenv("DB_HOST"):
-    # MySQL. Prefer mysqlclient when installed, otherwise fall back to pure-Python PyMySQL.
+    # MySQL: prefer mysqlclient, otherwise use PyMySQL
     try:
         import MySQLdb  # noqa: F401
     except ImportError:
         import pymysql
 
-        pymysql.version_info = (2, 2, 1, "final", 0)  # satisfy Django's driver version check
+        pymysql.version_info = (2, 2, 1, "final", 0)
         pymysql.install_as_MySQLdb()
 
-    _mysql_options = {"charset": "utf8mb4"}
-    if os.getenv("DB_SSL_CA"):
-        # e.g. /etc/ssl/certs/ca-certificates.crt (system CAs on Render) or a provider's ca.pem
-        _mysql_options["ssl"] = {"ca": os.environ["DB_SSL_CA"]}
+    _mysql_options = {
+        "charset": "utf8mb4",
+    }
+
+    # Aiven MySQL SSL certificate verification
+    db_ssl_ca = os.getenv("DB_SSL_CA", "").strip()
+
+    if db_ssl_ca:
+        _mysql_options["ssl"] = {
+            "ca": db_ssl_ca,
+            "check_hostname": True,
+        }
 
     DATABASES = {
         "default": {
@@ -152,24 +165,20 @@ elif os.getenv("DB_HOST"):
             "PASSWORD": os.getenv("DB_PASSWORD", ""),
             "HOST": os.getenv("DB_HOST"),
             "PORT": os.getenv("DB_PORT", "3306"),
-            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", 60)),
+            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
+            "CONN_HEALTH_CHECKS": True,
             "OPTIONS": _mysql_options,
         }
     }
+
 else:
+    # Local development / CI fallback
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / os.getenv("SQLITE_NAME", "db.sqlite3"),
         }
     }
-
-AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
 
 # ---------------------------------------------------------------------------
 # Email (password reset). Console backend in development, SMTP when EMAIL_HOST is set.

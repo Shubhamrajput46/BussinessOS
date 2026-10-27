@@ -20,6 +20,7 @@ WORKDIR /app
 COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/* && rm -rf /wheels
 COPY --chown=app:app . .
+COPY --chown=app:app docker/ca.pem /app/docker/ca.pem
 RUN chmod +x docker/entrypoint.sh \
     && mkdir -p /app/staticfiles && chown app:app /app/staticfiles
 USER app
